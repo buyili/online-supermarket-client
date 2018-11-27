@@ -1,17 +1,22 @@
-const ConfigPages = require("./src/configPages")
+const PagesConfig = require("./src/pagesConfig")
 
-console.log(ConfigPages);
+var path = require('path');
+
+console.log(PagesConfig);
 
 //vue.config.js
 module.exports = {
     //baseUrl:"/src/counter"
-    filenameHashing:false,
-    pages:{
-        ...ConfigPages,
-        index:{
-            entry:"src/main.js",
-            template:"public/index.html",
-            filename:'index.html'
+    filenameHashing: false,
+    pages: {
+        ...PagesConfig,
+        index: {
+            entry: "src/main.js",
+            template: "public/index.html",
+            filename: 'index.html'
         },
+    },
+    devServer: {
+        port: 8082,
     }
 }
