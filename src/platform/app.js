@@ -9,11 +9,13 @@ import Login from './components/Login.vue'
 import Home from './components/Home.vue'
 
 import Storage from '../util/storage.js'
+import PluginWrapElementUI from '../util/pluginWrapElementUI.js'
 
 Vue.use(VueRouter)
 Vue.use(ElementUi)
 Vue.use(VueResource);
 Vue.use(Storage)
+Vue.use(PluginWrapElementUI)
 
 
 Vue.http.options.root = 'http://localhost:8080';

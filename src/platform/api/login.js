@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import { message } from '../../util/pluginWrapElementUI.js'
 
 export function login(payload, success, error) {
     Vue.http.post("admin/login", payload).then(({body})=>{
@@ -6,10 +7,8 @@ export function login(payload, success, error) {
     }, error);
 }
 
-export function logout(){
+export function logout(cb){
     localStorage.removeItem('token');
-    Vue.$Message({
-        message:"登出成功",
-        type:'success'
-    })
+    message.success("登出成功")
+    cb();
 }

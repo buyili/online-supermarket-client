@@ -1,32 +1,28 @@
 <template>
-    <div class="loginpage">
-        <el-container>
-            <el-main>
-                <div class="login-card">
-                    <div class="login-title">
-                        <h1>Sign in to Platform</h1>
-                    </div>
-                    <div class="login-form">
-                        <el-form 
-                        ref="form"
-                        :model="loginModel"
-                        label-position="center"
-                        >
-                            <el-form-item label="Email address">
-                                <el-input v-model="loginModel.telephone"></el-input>
-                            </el-form-item>
-                            <el-form-item label="Password">
-                                <el-input v-model="loginModel.password"></el-input>
-                            </el-form-item>
-                            <el-form-item>
-                                <el-button type="success" @click="login">Sign in</el-button>
-                            </el-form-item>
-                        </el-form>
-                    </div>
-                </div>
-            </el-main>
-        </el-container>
-    </div>
+  <div class="loginpage">
+    <el-container>
+      <el-main>
+        <div class="login-card">
+          <div class="login-title">
+            <h1>Sign in to Platform</h1>
+          </div>
+          <div class="login-form">
+            <el-form ref="form" :model="loginModel" label-position="center">
+              <el-form-item label="User Name">
+                <el-input v-model="loginModel.telephone"></el-input>
+              </el-form-item>
+              <el-form-item label="Password">
+                <el-input v-model="loginModel.password"></el-input>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="success" @click="login">Sign in</el-button>
+              </el-form-item>
+            </el-form>
+          </div>
+        </div>
+      </el-main>
+    </el-container>
+  </div>
 </template>
 
 <script>
@@ -42,18 +38,24 @@ export default {
   },
   methods: {
     login() {
-      ApiLogin.login(this.loginModel, ({ status, msg, data }) => {
+      ApiLogin.login(this.loginModel, ({ status, data }) => {
         if (status === 200) {
           this._local.setItem("token", data.token);
-          this._local.setItem("adminId",data.id);
-          this._local.setItem("admin",data);
+          this._local.setItem("adminId", data.id);
+          this._local.setItem("admin", data);
           this.$message({
-              message:"登陸成功",
-              type:"success"
-          })
-          //this.$router.push("home");
+            message: "登陸成功",
+            type: "success"
+          });
+          this.$router.push("home");
         } else {
-          alert(msg);
+          let msg;
+          if (status === 401) {
+            msg = "用户名或密码错误！";
+          } else if (status === 402) {
+            msg = "该账号未注册！";
+          }
+          this._message.success("登录失败!  " + msg);
         }
       });
     }
