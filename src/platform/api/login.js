@@ -47,11 +47,13 @@ export function logout(cb) {
 }
 
 export function queryAllTrademarks(success, error) {
-    Vue.http.get('trademarks').then(({ body }) => { filter(body, body, success, error) })
+    Vue.http.get('trademarks').then(({ body }) => {
+        filter(body, body, success, error)
+    })
 }
 
-export function delTrademark(trademarkId,success, error) {
-    Vue.http.delete('admin/trademarks/'+trademarkId).then(({ body }) => { filter(body, body, success, error) })
+export function delTrademark(trademarkId, success, error) {
+    Vue.http.delete('admin/trademarks/' + trademarkId).then(({ body }) => { filter(body, body, success, error) })
 }
 
 export function addTrademark({ data, file }, success, error) {
@@ -78,4 +80,24 @@ export function addCategory(payload, success, error) {
 
 export function delCategory(categoryId, success, error) {
     Vue.http.delete("admin/categories/" + categoryId).then(({ body }) => { filter(body, body, success, error) })
+}
+
+
+export function queryAttrByCategoryId(categoryId,success,error){
+    Vue.http.get(categoryId + "/attrs").then(({body})=>{
+        filter(body, body, success, error);
+    })
+}
+
+export function addAttr(payload,success,error){
+    let arr = [];
+    arr.push(payload);
+    Vue.http.post("attrs/add",arr).then(({body})=>{
+        filter(body, body, success, error);
+    })
+}
+export function delAttr(attrId,success,error){
+    Vue.http.delete("admin/attrs/"+attrId).then(({body})=>{
+        filter(body, body, success, error);
+    })
 }

@@ -16,50 +16,6 @@
       </el-row>
     </el-header>
     <el-container>
-      <el-aside>
-        <el-radio-group v-model="isCollapse" style="margin-bottom: 20px;">
-          <el-radio-button :label="false">展开</el-radio-button>
-          <el-radio-button :label="true">收起</el-radio-button>
-        </el-radio-group>
-        <el-menu
-          default-active="1-4-1"
-          class="el-menu-vertical-demo"
-          @open="handleOpen"
-          @close="handleClose"
-          :collapse="isCollapse"
-        >
-          <el-submenu index="1">
-            <template slot="title">
-              <i class="el-icon-location"></i>
-              <span slot="title">导航一</span>
-            </template>
-            <el-menu-item-group>
-              <span slot="title">分组一</span>
-              <el-menu-item index="1-1">选项1</el-menu-item>
-              <el-menu-item index="1-2">选项2</el-menu-item>
-            </el-menu-item-group>
-            <el-menu-item-group title="分组2">
-              <el-menu-item index="1-3">选项3</el-menu-item>
-            </el-menu-item-group>
-            <el-submenu index="1-4">
-              <span slot="title">选项4</span>
-              <el-menu-item index="1-4-1">选项1</el-menu-item>
-            </el-submenu>
-          </el-submenu>
-          <el-menu-item index="2">
-            <i class="el-icon-menu"></i>
-            <span slot="title">导航二</span>
-          </el-menu-item>
-          <el-menu-item index="3" disabled>
-            <i class="el-icon-document"></i>
-            <span slot="title">导航三</span>
-          </el-menu-item>
-          <el-menu-item index="4">
-            <i class="el-icon-setting"></i>
-            <span slot="title">导航四</span>
-          </el-menu-item>
-        </el-menu>
-      </el-aside>
       <el-main>
         <el-tabs v-model="activeName">
           <el-tab-pane label="品牌管理" name="trademark">
@@ -72,7 +28,7 @@
                 :offset="3"
               >
                 <el-card :body-style="{ padding: '0px' }">
-                  <img src class="image">
+                  <img :src="imageRootPath + trademark.logoUrl" class="image">
                   <div style="padding: 14px;">
                     <span>{{trademark.name}}</span>
                     <div class="bottom clearfix">
@@ -92,24 +48,24 @@
               </el-form-item>
               <el-form-item label="Trademark Logo">
                 <el-upload
-                ref="upload"
-                :action="uploadAction"
-                :file-list="fileList"
-                :auto-upload="false"
-                :data="addTrademark"
-                :http-request="upload"
-                :multiple="false"
-                :limit="1"
-                :on-exceed="exceed"
-                list-type="picture"
+                  ref="upload"
+                  :action="uploadAction"
+                  :auto-upload="false"
+                  :data="addTrademark"
+                  :http-request="upload"
+                  :multiple="false"
+                  :limit="1"
+                  :on-exceed="exceed"
+                  list-type="picture"
                 >
                   <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
                   <el-button
-                  style="margin-left: 10px;"
-                  size="small"
-                  type="success"
-                  @click="submitUpload"
+                    style="margin-left: 10px;"
+                    size="small"
+                    type="success"
+                    @click="submitUpload"
                   >上传到服务器</el-button>
+                  <el-button type="primary" size="small" @click="clearUploadList">Clear</el-button>
                   <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
                 </el-upload>
               </el-form-item>
@@ -147,21 +103,74 @@
                     <el-button @click="handleDelCategory(category)">Delete All And Parent</el-button>
                     <br>
                     <br>
-                    <div v-if="category.child != null && category.child.length != 0">
-                      <template v-for="(cCategory, cIndex) of category.child">
-                        <el-button
-                          :key="cIndex"
-                          @click="handleDelCategory(cCategory)"
-                        >{{cCategory.name}}</el-button>
-                      </template>
-                    </div>
-                    <div v-else>not child data</div>
+                    <el-table :data="category.child" border style="width: 100%">
+                      <el-table-column prop="name" label="二級目錄名稱"></el-table-column>
+                      <el-table-column label="操作">
+                        <template slot-scope="scope">
+                          <!-- <el-button
+                            size="mini"
+                          >编辑</el-button>-->
+                          <el-button
+                            size="mini"
+                            type="danger"
+                            @click="handleDelCategory(scope.row)"
+                          >删除</el-button>
+                        </template>
+                      </el-table-column>
+                    </el-table>
                   </el-collapse-item>
                 </template>
               </el-collapse>
             </div>
           </el-tab-pane>
-          <el-tab-pane label="角色管理" name="third"></el-tab-pane>
+          <el-tab-pane label="屬性管理" name="third">
+            <el-container>
+              <el-aside>
+                <el-menu default-active="2" class="el-menu-vertical-demo">
+                  <el-menu-item
+                    v-for="(category,index) of categories"
+                    :key="index"
+                    :index="index+''"
+                    @click="choseCategory(category)"
+                  >
+                    <i class="el-icon-tickets"></i>
+                    <span slot="title">{{category.name}}</span>
+                  </el-menu-item>
+                </el-menu>
+              </el-aside>
+              <el-main>
+                <el-form ref="addAttrForm" :model="addAttr" :rules="rules" inline>
+                  <el-form-item label="屬性名稱:" prop="name">
+                    <el-input v-model="addAttr.name" placeholder="請輸入名稱"></el-input>
+                  </el-form-item>
+                  <el-form-item label="是否屬於SKU屬性:">
+                    <el-checkbox v-model="addAttr.isSKU"></el-checkbox>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button @click="addAttrF">添加</el-button>
+                  </el-form-item>
+                </el-form>
+                <div>{{currentCategory.name}} 分類屬性：</div>
+                <br>
+                <el-table :data="currentAttrs" border style="width: 100%">
+                  <el-table-column prop="name" label="屬性名稱"></el-table-column>
+                  <el-table-column label="SKU属性">
+                    <template slot-scope="scope">
+                      <el-button size="mini" type="text">{{scope.row.isSKU === 1 ? "是" : "否"}}</el-button>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="操作">
+                    <template slot-scope="scope">
+                      <!-- <el-button
+                        size="mini"
+                      >编辑</el-button>-->
+                      <el-button size="mini" type="danger" @click="delAttr(scope.row)">删除</el-button>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </el-main>
+            </el-container>
+          </el-tab-pane>
           <el-tab-pane label="定时任务补偿" name="fourth"></el-tab-pane>
         </el-tabs>
       </el-main>
@@ -174,8 +183,9 @@ import * as Api from "../api/login.js";
 export default {
   data() {
     return {
+      imageRootPath: "http://localhost:8080/logo/",
       isCollapse: false,
-      activeName: "trademark",
+      activeName: "third",
       rules: {
         name: [{ required: true, message: "请输入品牌名称", trigger: "blur" }],
         parentId: [
@@ -194,7 +204,12 @@ export default {
         name: "",
         level: 1
       },
-      categories: []
+      categories: [],
+
+      //Tab Attr Manage
+      currentCategory: {},
+      currentAttrs: [],
+      addAttr: {}
     };
   },
 
@@ -224,6 +239,10 @@ export default {
       console.log(key, keyPath);
     },
 
+    clearUploadList() {
+      this.$refs.upload.clearFiles();
+    },
+
     queryAllTrademark() {
       Api.queryAllTrademarks(({ data }) => {
         this.trademarks = data;
@@ -248,7 +267,7 @@ export default {
     },
 
     exceed() {
-      this._message.warning("只能选择一个文件! 请先删除已选择文件");
+      this._message.warning("只能选择一个文件! 请點擊Clear按鈕删除已选择文件");
     },
 
     upload(content) {
@@ -296,6 +315,7 @@ export default {
           category,
           body => {
             this._message.success("添加成功!");
+            this.addCategory.name = "";
             this.queryAllCategories();
           },
           () => {
@@ -304,6 +324,7 @@ export default {
         );
       });
     },
+
     handleDelCategory(category) {
       Api.delCategory(
         category.id,
@@ -315,6 +336,63 @@ export default {
           this._message.error("Delete Error!");
         }
       );
+    },
+
+    //Tab Attr Manage
+    choseCategory(category) {
+      this.currentCategory = category;
+      this.queryAttrByCategoryId();
+    },
+    queryAttrByCategoryId() {
+      let categoryId = this.currentCategory.id;
+      if (!categoryId) {
+        return;
+      }
+      Api.queryAttrByCategoryId(
+        categoryId,
+        ({ data }) => {
+          this.currentAttrs = data;
+        },
+        () => {
+          this.currentAttrs = [];
+        }
+      );
+    },
+    delAttr(attr) {
+      Api.delAttr(
+        attr.id,
+        () => {
+          this._message.success("Delete Success!");
+          this.queryAttrByCategoryId();
+        },
+        () => {
+          this._message.error("Delete Error!");
+        }
+      );
+    },
+    addAttrF() {
+      if (!this.currentCategory.id) {
+        this._message.warning("請選擇左側分類!");
+        return;
+      }
+      this.$refs.addAttrForm.validate().then(() => {
+        let attr = {
+          ...this.addAttr
+        };
+        attr.isSKU = attr.isSKU ? 1 : 2;
+        attr.categoryId = this.currentCategory.id;
+        Api.addAttr(
+          attr,
+          () => {
+            this._message.success("添加成功!");
+            this.addAttr.name = "";
+            this.queryAttrByCategoryId();
+          },
+          () => {
+            this._message.error("添加失敗!");
+          }
+        );
+      });
     }
   },
 
