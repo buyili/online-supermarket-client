@@ -180,10 +180,10 @@
 
 <script>
 import * as Api from "../api/login.js";
+import config from '../../constant/config.js';
 export default {
   data() {
     return {
-      imageRootPath: "http://localhost:8080/logo/",
       isCollapse: false,
       activeName: "third",
       rules: {
@@ -214,6 +214,9 @@ export default {
   },
 
   computed: {
+    imageRootPath: function(){
+      return config.imageRootPath;
+    },
     admin: function() {
       return this._local.getItem("admin");
     },
