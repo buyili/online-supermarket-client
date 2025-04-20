@@ -6,7 +6,7 @@ console.log(PagesConfig);
 
 //vue.config.js
 module.exports = {
-    //baseUrl:"/src/counter"
+    baseUrl:"/dist/",
     filenameHashing: false,
     pages: {
         ...PagesConfig,
